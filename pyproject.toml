@@ -8,9 +8,15 @@ authors = [
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "numpy (>=2.3.0,<3.0.0)"
+    "numpy (>=2.3.0,<3.0.0)",
+    "requests (>=2.32.4,<3.0.0)",
+    "pandas (>=2.3.0,<3.0.0)"
 ]
 
+[tool.poetry]
+packages = [
+    { include = "api", from = "src" },
+]
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
