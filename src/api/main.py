@@ -1,7 +1,6 @@
-from stonex.account import Account
+from stonex.client import Client
 
-acc = Account()
+acc = Client()
+print(acc)
 acc.open_new_session()
-trading_accounts, client_id = acc.client_trading_accounts()
-acc.margin_information()
 acc.close_existing_session()
