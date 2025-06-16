@@ -1,0 +1,13 @@
+marketTagId,name,type,weighting
+81,FX FX-Major,2,14
+82,FX AUD-Crosses,2,11
+83,FX CHF-Crosses,2,9
+84,FX EUR-Crosses,2,13
+85,FX GBP-Crosses,2,12
+86,FX Scandies-Crosses,2,3
+87,FX JPY-Crosses,2,5
+88,FX EM-Europe,2,7
+89,FX EM-Asia,2,8
+155,FX NZD-Crosses,2,4
+156,FX CAD-Crosses,2,10
+171,FX ALL-Markets,2,15
