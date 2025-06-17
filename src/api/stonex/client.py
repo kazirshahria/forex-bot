@@ -3,7 +3,7 @@ from .utils.stonex_utils import send_request
 
 class Client():
     """
-    # Forex.com Client
+    # Connect to Forex.com
     
     A class that verifys and stores client information with Forex.com.
     
@@ -12,6 +12,9 @@ class Client():
         - Balance
         - Margin requirements
         - and much more!
+    
+    This class is meant to only verify and store information about a specific user. If necessary, there are
+    functions that can get additional information about the user. 
 
     Args:
         
@@ -53,7 +56,7 @@ class Client():
             session = response.get("session")
             self.session_id = session
             self.locate_trading_accounts()
-            self.update_account_balance()
+            self.current_account_balance()
             return session
 
     def close_existing_session(self):
@@ -95,7 +98,7 @@ class Client():
                 f'Number of accounts: {len(trading_accounts)}'
             )
         
-    def update_account_balance(self):
+    def current_account_balance(self):
         response_code, response = send_request(
             method='GET',
             url=self.url,
