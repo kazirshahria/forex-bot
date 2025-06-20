@@ -1,48 +1,40 @@
 import os
-from .utils.stonex_utils import send_request
+from .utils.stonex_utils import send_request, log
 
 
 class Client(object):
-    """# Forex.com Client
+    """
+    # StoneX API Verification
 
-    A class that verify and stores client information with
-    [Forex.com](#https://www.forex.com/en-us/).
+    A class that verify and stores client information with [Forex.com](#https://www.forex.com/en-us/).
 
     The information available to access includes but not limited to:
         - Number of accounts with the broker
         - Balance
         - Margin requirements
-        - and much more!
 
-    This class is meant to only verify and store information about a specific
-    user. Verification will be necessary for access to other instances.
-    If necessary, there are functions that can find additional
-    information about the user.
+    This class is meant to only verify and store information about a specific user. Verification will be necessary for access to other instances.
+    If necessary, there are functions that can find additional information about the user.
 
     ---
 
-    Attributes:
+    ## Attributes:
         username (str): The username to login to the broker account.
         password (str): The password to login to the broker account.
-        app_key (str): The secret app key to interact with the StoneX\
-        [API](#https://docs.labs.gaincapital.com/).
+        app_key (str): The secret app key to interact with the StoneX [API](#https://docs.labs.gaincapital.com/).
     """
 
-    def __init__(self, username: str = os.environ.get('USERNAME'),
-                 password: str = os.environ.get('PASSWORD'),
-                 app_key: str = os.environ.get('APP_KEY')):
+    def __init__(self, username: str = os.environ.get('USERNAME'), password: str = os.environ.get('PASSWORD'), app_key: str = os.environ.get('APP_KEY')):
+        """
+        Initialize with the client's account information.
 
-        """Initialize the instance with the client's account information.
-
-        The credentials are case-sensitive and must match exactly with the
-        login on Forex.com. If values are not provided, the values
-        will be retrieved from the environment variables: USERNAME,
-        PASSWORD, and APP_KEY.
+        The credentials are case-sensitive and must match exactly with the login on Forex.com.
+        If values are not provided, the values will be retrieved from the environment variables.
 
         Parameters:
             username (str): The username to login to the broker account.
             password (str): The password to login to the broker account.
-            app_key (str): The secret app key to interact with the StoneX API.
+            app_key (str): The secret app key provided by the broker.
         """
         self.username: str = username
         self.password: str = password
@@ -61,9 +53,7 @@ class Client(object):
         self.client_id: str = None
 
     def __repr__(self):
-        return f'Account(username={self.username},\
-                password={self.password},\
-                app_key={self.app_key})'
+        return f'Account(username={self.username}, password={self.password}, app_key={self.app_key})'
 
     def open_new_session(self):
         response_code, response = send_request(
@@ -76,10 +66,15 @@ class Client(object):
                 'AppKey': self.app_key
             }
         )
-        
+
         if (response_code == 200) & (self.session_id is None):
             session = response.get("session")
             self.session_id = session
+            log(
+                level='INFO',
+                event='Session',
+                msg=f'Successfully created a session (user: {self.username})'
+            )
             self.locate_trading_accounts()
             self.current_account_balance()
             return session
@@ -97,7 +92,11 @@ class Client(object):
         )
 
         if (response_code == 200) & (response.get("LoggedOut") is True):
-            print('Session closed')
+            log(
+                level='INFO',
+                event='Session',
+                msg=f'Successfully closed the session (user: {self.username})'
+            )
             exit()
 
     def locate_trading_accounts(self):
@@ -117,8 +116,10 @@ class Client(object):
 
             client_account_id = trading_accounts[0].get('clientAccountId')
             self.client_id = client_account_id
-            return print(
-                f'Number of accounts: {len(trading_accounts)}'
+            log(
+                level='INFO',
+                event='Account',
+                msg=f'Located {len(trading_accounts)} trading accounts'
             )
 
     def current_account_balance(self):
@@ -140,8 +141,8 @@ class Client(object):
             self.margin_requirements = response.get('totalMarginRequirement')
             self.equity = response.get('netEquity')
             self.pnl = response.get('openTradeEquity')
-            return print(
-                f'Cash: ${self.cash} \nMargin: ${self.margin}\
-                    \nMargin Requirements: ${self.margin_requirements}\
-                    \nEquity: ${self.equity} \nP/L: ${self.pnl}'
-            )
+            # return print(
+            #     f'Cash: ${self.cash} \nMargin: ${self.margin}\
+            #         \nMargin Requirements: ${self.margin_requirements}\
+            #         \nEquity: ${self.equity} \nP/L: ${self.pnl}'
+            # )
