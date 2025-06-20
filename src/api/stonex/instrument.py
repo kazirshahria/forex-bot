@@ -4,7 +4,6 @@ from .utils.stonex_utils import send_request
 import pandas as pd
 from plotly import graph_objects as go
 import datetime
-from zoneinfo import ZoneInfo
 
 
 class Instrument(object):
@@ -24,7 +23,7 @@ class Instrument(object):
     def price_bars(self,
                    interval: Literal['TICK', 'MINUTE', 'HOUR', 'DAY', 'WEEK'] = 'DAY',
                    span: str = '1',
-                   price_bars: int = 30,
+                   candles: int = 60,
                    price_type: Literal['ASK', 'MID', 'BID'] = 'MID'):
 
         """
@@ -39,7 +38,7 @@ class Instrument(object):
                     - HOUR: 1, 2, 4, 8
                     - TICK or DAY or WEEK: 1
 
-            price_bars (int): The total number of candles to look back. Default is set to 360 or YTD.
+            candles (int): The total number of candles to look back. Default is set to 60 or last 2 months.
             price_type (str): The price types of the candles. Default is set to BID.
 
         Returns:
@@ -49,8 +48,7 @@ class Instrument(object):
             date_str: str = date_str.replace('/Date(', '').replace(')/', '')
             date_float: float = float(date_str)/1000
             date_utc = datetime.datetime.fromtimestamp(timestamp=date_float, tz=datetime.UTC)
-            eastern_tz = ZoneInfo('America/New_York')
-            return date_utc.astimezone(eastern_tz)
+            return date_utc
 
         response_code, response = send_request(
             method='GET',
@@ -61,7 +59,7 @@ class Instrument(object):
                 'Session': self.client.session_id,
                 'interval': interval,
                 'span': span,
-                'PriceBars': price_bars,
+                'PriceBars': candles,
                 'priceType': price_type
             }
         )
@@ -76,7 +74,7 @@ class Instrument(object):
             current_candle['BarDate'] = fix_date(current_candle.get('BarDate'))
             return previous_candles, current_candle
 
-    def plot_candlesticks(self, candles):
+    def plot_price(self, candles):
         df = pd.DataFrame(candles).set_index('BarDate')
         fig = go.Figure(
             data=[
@@ -93,6 +91,6 @@ class Instrument(object):
                 )
             ]
         )
-        fig.update_layout(title=f'{self.name}', xaxis_rangeslider_visible=False, plot_bgcolor='#dbdbdb')
+        fig.update_layout(title=f'{self.name}: Price Action', xaxis_rangeslider_visible=False, plot_bgcolor='#dbdbdb')
         fig.show()
         return fig
