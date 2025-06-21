@@ -1,12 +1,14 @@
 from typing import Literal
 from .client import Client
 from .utils.stonex_utils import send_request
-import pandas as pd
 from plotly import graph_objects as go
+from plotly import io as pio
+import pandas as pd
 import datetime
 
 
 class Instrument(object):
+    pio.renderers.default = "browser"
 
     def __init__(self, client: Client, market_id: str, name: str, margin: float, min_margin: float, max_margin: float, client_margin: float, bid_price: float, ask_price: float, spread: float):
         self.client = client
@@ -42,7 +44,8 @@ class Instrument(object):
             price_type (str): The price types of the candles. Default is set to BID.
 
         Returns:
-            candlesticks (list): A list of candlestick values.
+            current_candles (pd.DataFrame): A dataframe containing historical price action.
+            previous_candles (list): A list with a single item containing the current price action.
         """
         def fix_date(date_str):
             date_str: str = date_str.replace('/Date(', '').replace(')/', '')
@@ -66,16 +69,17 @@ class Instrument(object):
 
         if response_code == 200:
             previous_candles = response.get('PriceBars')
-            current_candle = response.get('PartialPriceBar')
+            current_candles = response.get('PartialPriceBar')
 
             for previous_candle in previous_candles:
                 previous_candle['BarDate'] = fix_date(previous_candle.get('BarDate'))
 
-            current_candle['BarDate'] = fix_date(current_candle.get('BarDate'))
-            return previous_candles, current_candle
+            current_candles['BarDate'] = fix_date(current_candles.get('BarDate'))
+            
+            return pd.DataFrame(previous_candles + [current_candles]).set_index('BarDate'), current_candles
 
-    def plot_price(self, candles):
-        df = pd.DataFrame(candles).set_index('BarDate')
+
+    def plot_price(self, df: pd.DataFrame):
         fig = go.Figure(
             data=[
                 go.Candlestick(
