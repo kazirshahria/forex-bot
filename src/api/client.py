@@ -77,7 +77,6 @@ class Client(object):
             )
             self.locate_trading_accounts()
             self.current_account_balance()
-            return session
 
     def close_existing_session(self):
         response_code, response = send_request(
@@ -97,7 +96,6 @@ class Client(object):
                 event='Session',
                 msg=f'Successfully closed the session (user: {self.username})'
             )
-            exit()
 
     def locate_trading_accounts(self):
         response_code, response = send_request(

@@ -29,11 +29,11 @@ class Market(object):
             df.to_csv(f'./data/{file_name}')
             return df
 
-    def market_information(self, market_id: str):
+    def market_information(self, market: str):
         response_code, response = send_request(
             method='GET',
             url=self.url,
-            path=f'/v2/market/{market_id}/information',
+            path=f'/v2/market/{market}/information',
             params={
                 'UserName': self.client.username,
                 'Session': self.client.session_id,
