@@ -13,8 +13,8 @@ try:
 
     pair: Instrument
     for _, pair in pairs.items():
-        previous_candles, current_candle = pair.price_bars(candles=60)
-        pair.plot_price(previous_candles)
+        df, current_candle = pair.price_bars(candles=60)
+        pair.plot_price(df)
 
 except Exception as e:
     log(
